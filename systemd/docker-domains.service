@@ -1,0 +1,14 @@
+[Unit]
+Description=Docker Domain Names resolver
+
+After=docker.service
+Requires=docker.service
+ 
+[Service]
+Type=simple
+User=root
+EnvironmentFile=-/etc/docker/docker-domains.conf
+ExecStart=/usr/local/bin/docker-domains
+ 
+[Install]
+WantedBy=multi-user.target
