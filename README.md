@@ -20,6 +20,10 @@ Keep in mind that `.local` can be changed in `/etc/docker/docker-domains.conf`.
 
 Subdomains are also resolved. So if your container is started with a hostname at "foo.docker", the addresses `*.foo.docker` will point to container.
 
+All domains are also resolved **inside** containers! That's the reason this project exists.
+
+> You theorically not need to change firewall configuration. If you have any problem and/or solution, please fill an issue and/or provide a pull-request.
+
 # Installation
 
 Clone this repository, then in a terminal, go to the directory and type:
