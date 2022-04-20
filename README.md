@@ -6,6 +6,14 @@ It uses:
 - dnsmasq
 - your systemd-resolved configuration
 
+# Table of contents
+
+* [Docker Domain resolution](#docker-domain-resolution)
+* [The principle](#the-principle)
+* [Installation](#installation)
+* [Example](#example)
+* [What happens when you shut down the service?](#what-happens-when-you-shut-down-the-service)
+
 # The principle
 
 The daemon will simply start a dnsmasq service listening on your `docker0` interface. It will then tell systemd-resolved that this interface should be used to resolve domain names (while continuing to resolve external domain names).
@@ -52,6 +60,26 @@ sudo make uninstall
 ```
 
 The compilation is done with a Docker container, so you don't need to install the `go` compiler on your computer.
+
+
+# Example
+
+After having installed and started the `docker-domains` service:
+
+```bash
+# no need to bind ports :)
+docker run --rm --name website --hostname foo.com -d nginx
+
+# Try to get pages:
+curl foo.com
+curl website.docker
+
+# stop
+docker stop website
+
+# then resolution should fail
+curl website.docker
+```
 
 # What happens when you shut down the service?
 
