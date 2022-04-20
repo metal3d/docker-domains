@@ -19,8 +19,10 @@ import (
 )
 
 var (
-	globalLock = sync.Mutex{}
-	version    = "master"
+	version               = "master"
+	globalLock            = sync.Mutex{}
+	dockerDomainExtension = os.Getenv("DOCKER_DOMAIN")
+	defaultNetworkName    = os.Getenv("DOCKER_DEFAULT_NETWORK")
 )
 
 // This build a dnsmasq config for container.
@@ -28,8 +30,15 @@ func buildDNSMasqConfig(container types.Container, cli *client.Client) string {
 	// get the network ip, container name and possible given hostname
 	ip := ""
 	hosts := []string{}
-	for _, network := range container.NetworkSettings.Networks {
+	if defaultNetworkName == "" {
+		defaultNetworkName = "bridge"
+	}
+	networkName := ""
+	for name, network := range container.NetworkSettings.Networks {
 		ip = network.IPAddress
+		if name != defaultNetworkName {
+			networkName = name
+		}
 	}
 
 	name := container.Names[0][1:]
@@ -37,14 +46,28 @@ func buildDNSMasqConfig(container types.Container, cli *client.Client) string {
 	if err != nil {
 		fmt.Println(err)
 	} else {
+		domain := inspect.Config.Domainname
 		hostname := inspect.Config.Hostname
 		if hostname != "" {
+			if domain != "" {
+				hostname = hostname + "." + domain
+			}
 			hosts = append(hosts, "address=/."+hostname+"/"+ip)
 		}
 	}
 
-	// default to the container name.local
-	hosts = append(hosts, "address=/."+name+".local/"+ip)
+	// default to the container name.(from config)
+	if dockerDomainExtension != "" && !strings.HasPrefix(dockerDomainExtension, ".") {
+		dockerDomainExtension = "." + dockerDomainExtension
+	}
+
+	// by default, we add the container name with .networkname.tld
+	// to the hosts file.
+	if networkName != "" {
+		hosts = append(hosts, "address=/."+name+"."+networkName+dockerDomainExtension+"/"+ip)
+	} else {
+		hosts = append(hosts, "address=/."+name+dockerDomainExtension+"/"+ip)
+	}
 
 	// add the ip address to the config
 	hostname := strings.Join(hosts, "\n") + "\n"

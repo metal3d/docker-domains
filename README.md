@@ -12,30 +12,37 @@ The daemon will simply start a dnsmasq service listening on your `docker0` inter
 
 Whenever a container starts or is stopped:
 - the daemon reads the list of Docker containers
-- it creates a domain name `container_name.local
+- it creates a domain name `container_name.local` (you can change this in `/etc/docker/docker-domains.conf`)
+- it creates a domain name `container_name.network_name.local` if the container is started inside a Docker network
 - if the container has a hostname, it will also be added
+
+Keep in mind that `.local` can be changed in `/etc/docker/docker-domains.conf`.
 
 Subdomains are also resolved. So if your container is started with a hostname at "foo.docker", the addresses `*.foo.docker` will point to container.
 
 # Installation
 
 Clone this repository, then in a terminal, go to the directory and type:
+
 ```bash
 make build
 sudo make install
 ```
 
 To activate the service:
+
 ```bash
 sudo systemctl start docker-domains
 ```
 You can also start it with your system:
+
 ```bash
 # --now indicates to start the service at the same time
 sudo systemctl enable --now docker-domains
 ```
 
 You can uninstall with the command:
+
 ```bash
 sudo make uninstall
 ```

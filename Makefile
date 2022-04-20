@@ -26,6 +26,7 @@ install:
 	mkdir -p $(PREFIX)/bin
 	install -m 755 dist/docker-domains $(PREFIX)/bin/docker-domains
 	install -m 644 systemd/docker-domains.service /etc/systemd/system/docker-domains.service
+	install -m 644 systemd/docker-domains.conf /etc/docker/docker-domains.conf
 	sed -i "s|/usr/local|$(PREFIX)|g" /etc/systemd/system/docker-domains.service
 	systemctl daemon-reload
 	#
