@@ -23,6 +23,7 @@ var (
 	globalLock            = sync.Mutex{}
 	dockerDomainExtension = os.Getenv("DOCKER_DOMAIN")
 	defaultNetworkName    = os.Getenv("DOCKER_DEFAULT_NETWORK")
+	specificNames         = os.Getenv("DOCKER_STATIC_NAMES")
 )
 
 // This build a dnsmasq config for container.
@@ -67,6 +68,14 @@ func buildDNSMasqConfig(container types.Container, cli *client.Client) string {
 		hosts = append(hosts, "address=/."+name+"."+networkName+dockerDomainExtension+"/"+ip)
 	} else {
 		hosts = append(hosts, "address=/."+name+dockerDomainExtension+"/"+ip)
+	}
+
+	// specificNames is a comma separated list of hostnames to add to the hosts file.
+	for _, host := range strings.Split(specificNames, ",") {
+		block := strings.Split(host, ":")
+		if len(block) == 2 && block[0] == name {
+			hosts = append(hosts, "address=/."+block[1]+"/"+ip)
+		}
 	}
 
 	// add the ip address to the config
