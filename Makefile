@@ -14,7 +14,7 @@ dist/docker-domains: $(wildcard cmd/docker-domains/* dnsmasq/*)
 		-v $(PWD)/.cache:/tmp/.cache:z -v $(PWD):/go/src/docker-domains:z \
 		-w /go/src/docker-domains \
 		golang:1.18  \
-		go build -ldflags="-X 'main.version=1.1'" -o dist/docker-domains ./cmd/docker-domains
+		go build -ldflags="-X 'main.version=$(VERSION)'" -o dist/docker-domains ./cmd/docker-domains
 	# strip the binary
 	strip dist/docker-domains
 	# ensure it's executable

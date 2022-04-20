@@ -119,6 +119,7 @@ func main() {
 	}
 
 	// Prepare dnsmasq and systemd-resolved config.
+	dnsmasq.Initialize()
 	dnsmasq.ConfigureSystemdResolved()
 
 	// Connect to Docker API.

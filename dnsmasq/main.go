@@ -28,7 +28,7 @@ var (
 	stopRestart       = make(chan int, 0)                                          // channel to stop the goroutine that reloads dnsmasq
 )
 
-func init() {
+func Initialize() {
 	docker0 = os.Getenv("DOCKER_INTERFACE")
 	if docker0 == "" {
 		docker0 = "docker0"
