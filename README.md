@@ -106,10 +106,17 @@ curl website.docker
 
 [Kind](https://kind.sigs.k8s.io) is a local Kubernetes instance that will start in Docker. The default master is named `kind_control_plane`. You can start a Ingress Controller inside the Kubernetes instance to hit your web applications with a local domain.
 
-```bash
-# setup DOCKER_STATIC_NAMES=kind_control_plane:.kind
-# and do "sudo systemctl restart docker-domains"
+First, change `/etc/docker/docker-domains.conf` and set `DOCKER_STATIC_NAMES` to force `kind_control_plane` to be resolved as `.kind` for example:
 
+```
+DOCKER_STATIC_NAMES=kind_control_plane:.kind
+```
+
+And restart docker-domains: `systemctl restart docker-domains`
+
+Then:
+
+```bash
 # create a cluster
 kind create cluster
 
@@ -171,7 +178,8 @@ First, create a certificate and key inside a local directory of your project:
 ```bash
 mkdir -p nginx/{conf.d,certs}
 
-# Do it only once, install CA root to your trust store (chrome/chromium/brave, firefox...) 
+# Do it only once, install CA root to your trust store (chrome/chromium/brave, firefox...)
+# You'll need to restart your web browser !
 mkcert -install
 
 # create foo.com certificate and key
