@@ -122,7 +122,7 @@ helm install -n ingress ingress-controller ingress-nginx/ingress-nginx \
     --create-namespace \
     --set controller.hostPort=true
 
-# chec "kubectl -n ingress get pods", all pods should be "Running" after a few seconds
+# check "kubectl -n ingress get pods", all pods should be "Running" after a few seconds
 
 # Now create a "ghost" website for example, set the "hostname" to "something.kind"
 # e.g. ghost.kind
@@ -152,8 +152,9 @@ You need to add your own reverse proxy if you're not using a service that can ha
 Install certutil and mkcert:
 
 ```bash
+sudo apt install libnss3-tools
     -or-
-sudo yum install nss-tools
+sudo dnf install nss-tools
     -or-
 sudo pacman -S nss
     -or-
@@ -170,7 +171,9 @@ First, create a certificate and key inside a local directory of your project:
 ```bash
 mkdir -p nginx/{conf.d,certs}
 
-# --install add the certificate to your browser trust store
+# Do it only once, install CA root to your trust store (chrome/chromium/brave, firefox...) 
+mkcert -install
+
 # create foo.com certificate and key
 mkcert --install --cert-file nginx/certs/foo.com.crt --key-file nginx/certs/foo.com.key foo.com
 ```
