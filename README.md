@@ -12,11 +12,11 @@ The daemon will simply start a dnsmasq service listening on your `docker0` inter
 
 Whenever a container starts or is stopped:
 - the daemon reads the list of Docker containers
-- it creates a domain name `container_name.local` (you can change this in `/etc/docker/docker-domains.conf`)
-- it creates a domain name `container_name.network_name.local` if the container is started inside a Docker network
+- it creates a domain name `container_name.docker` (you can change this in `/etc/docker/docker-domains.conf`)
+- it creates a domain name `container_name.network_name.docker` if the container is started inside a Docker network
 - if the container has a hostname, it will also be added
 
-Keep in mind that `.local` can be changed in `/etc/docker/docker-domains.conf`.
+Keep in mind that `.docker` can be changed in `/etc/docker/docker-domains.conf`.
 
 Subdomains are also resolved. So if your container is started with a hostname at "foo.docker", the addresses `*.foo.docker` will point to container.
 
