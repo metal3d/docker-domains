@@ -23,9 +23,9 @@ var (
 	docker0           = ""                                                         // doker interfaces name
 	TempDir           = ""                                                         // temporary directory
 	resolveDnsmasq    = "/etc/systemd/resolved.conf.d/docker-domains-dnsmasq.conf" // systemd-resolved config file
-	stopDnsmasq       = make(chan int, 0)                                          // channel to reload (1) or stop (2) dnsmasq
-	dnsmasqTerminated = make(chan int, 0)                                          // channel to signal that dnsmasq is terminated
-	stopRestart       = make(chan int, 0)                                          // channel to stop the goroutine that reloads dnsmasq
+	stopDnsmasq       = make(chan int)                                             // channel to reload (1) or stop (2) dnsmasq
+	dnsmasqTerminated = make(chan int)                                             // channel to signal that dnsmasq is terminated
+	stopRestart       = make(chan int)                                             // channel to stop the goroutine that reloads dnsmasq
 )
 
 func Initialize() {
