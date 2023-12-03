@@ -3,9 +3,12 @@ CUR_BRANCH=$(shell git branch --show-current)
 VERSION=$(shell git describe --exact-match --tags $(CUR_SHA) 2>/dev/null || echo $(CUR_BRANCH)-$(CUR_SHA))
 PREFIX:=/usr/local
 
+all: build install
+
 build: dist/docker-domains
 
 dist/docker-domains: $(wildcard cmd/docker-domains/* dnsmasq/*)
+	@[ $(shell id -u) -eq 0 ] || (echo "This script must be run as non-root." && exit 1)
 	# build the Go project with docker
 	mkdir -p .cache
 	# build
@@ -20,37 +23,58 @@ dist/docker-domains: $(wildcard cmd/docker-domains/* dnsmasq/*)
 	# ensure it's executable
 	chmod +x dist/docker-domains
 
-install:
-	@[ -f dist/docker-domains ] || (echo "Please run 'make build' (without sudo) first" && exit 1)
-	@[ $(shell id -u) -eq 0 ] || (echo "This script must be run as root" && exit 1)
+install: build
+ifneq ($(shell id -u), 0)
+	@echo "Installation must be run as root. Escalating..."
+	sudo make $@
+else
 	mkdir -p $(PREFIX)/bin
 	install -m 755 dist/docker-domains $(PREFIX)/bin/docker-domains
 	install -m 644 systemd/docker-domains.service /etc/systemd/system/docker-domains.service
 	install -m 644 systemd/docker-domains.conf /etc/docker/docker-domains.conf
 	sed -i "s|/usr/local|$(PREFIX)|g" /etc/systemd/system/docker-domains.service
 	systemctl daemon-reload
-	#
-	# You can now start the service with:
-	# systemctl start docker-domains
-	# or to enable it and start it:
-	# systemctl enable --now docker-domains
-	# You can stop the service with:
-	# systemctl stop docker-domains
-	# You can enable the service to start at boot with:
-	# systemctl enable docker-domains
+	@echo
+	@echo Enable service
+	systemctl enable --now docker-domains
+	@echo
+	@echo
+	@echo
+	@echo "####################################################"
+	@echo "# You can now start the service with:"
+	@echo "#"
+	@echo "# 	systemctl start docker-domains"
+	@echo "#"
+	@echo "#"
+	@echo "# or to enable it and start it:"
+	@echo "#"
+	@echo "# 	systemctl enable --now docker-domains"
+	@echo "#"
+	@echo "#"
+	@echo "# You can stop the service with:"
+	@echo "#"
+	@echo "# 	systemctl stop docker-domains"
+	@echo "#"
+	@echo "#"
+	@echo "# You can enable the service to start at boot with:"
+	@echo "#"
+	@echo "# 	systemctl enable docker-domains"
+	@echo "#"
+	@echo "#####################################################"
+endif
 	
 uninstall:
-	# ensire it's sudo or root
-	if [ $(shell id -u) -ne 0 ]; then \
-		echo "This script must be run as root"; \
-		exit 1; \
-	fi
-	# uninstall the binary
+ifneq ($(shell id -u), 0)
+	echo "Uninstallation must be run as root. Escalating..."
+	sudo make $@
+else
+# uninstall the binary
 	rm -f $(PREFIX)/bin/docker-domains
 	# uninstall systemd service
 	systemctl disable --now docker-domains || true
 	rm -f /etc/systemd/system/docker-domains.service
 	systemctl daemon-reload
+endif
 
 clean:
 	rm -rf dist .cache
