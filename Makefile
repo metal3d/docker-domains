@@ -8,7 +8,10 @@ all: build install
 build: dist/docker-domains
 
 dist/docker-domains: $(wildcard cmd/docker-domains/* dnsmasq/*)
-	@[ $(shell id -u) -eq 0 ] || (echo "This script must be run as non-root." && exit 1)
+ifeq ($(shell id -u),0)
+	@echo "This script must be run as non-root."
+	exit
+endif
 	# build the Go project with docker
 	mkdir -p .cache
 	# build
@@ -23,7 +26,7 @@ dist/docker-domains: $(wildcard cmd/docker-domains/* dnsmasq/*)
 	# ensure it's executable
 	chmod +x dist/docker-domains
 
-install: build
+install:
 ifneq ($(shell id -u), 0)
 	@echo "Installation must be run as root. Escalating..."
 	sudo make $@

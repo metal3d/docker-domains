@@ -20,7 +20,7 @@ func ConfigureSystemdResolved() {
 	// ensure that the directory exists
 	dirname := filepath.Dir(resolveDnsmasq)
 	if _, err := os.Stat(dirname); err != nil {
-		if err := os.Mkdir(resolveDnsmasq, 0755); err != nil {
+		if err := os.Mkdir(dirname, 0755); err != nil {
 			log.Fatal(err)
 		}
 	}
